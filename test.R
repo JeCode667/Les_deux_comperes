@@ -1,2 +1,6 @@
 load("donneesProjet2A-2024.RData")
-attach(donnesProjet)
+attach(donneesProjet)
+
+require(PCAmixdata)
+AcP <- PCAmix(donneesProjet, graph=TRUE)
+ 
