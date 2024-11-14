@@ -1,1 +1,1 @@
-#test
+load("~/Downloads/files/Ensc/2A/stats/Les_deux_comperes/donneesProjet2A-2024.RData")
