@@ -17,6 +17,10 @@ abline(h=-2*sigma,col=2)
 #On voit des valeurs un peu loin du reste
 shapiro.test(res$residuals)# pvalue = 17%>5% non rejet de H0 hypothèse de normalité.
 
+
+#drop 
+res <- lm(Pct.BF~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist,data=MatXY)
+drop1(res)
 #Ankle 
 plot(Pct.BF,Ankle)
 res <- lm(Pct.BF~Ankle)
@@ -36,7 +40,15 @@ sigma <- sd(res$residuals)
 plot(res$fitted,res$residuals)
 abline(h=2*sigma,col=2)
 abline(h=-2*sigma,col=2)
-# je pense jvais plot toutes les données et voir où est-ce que y'a des valeurs trop loin du reste parce que là c'est des trucs de fou
-boxplot(Pct.BF,title("Pct.BF"))
-boxplot(Age,title="Age")
-boxplot(Weight,title("Weight"))
+# je pense jvais plot toutes les données et voir où est-ce que y'a des valeurs trop loin du reste 
+boxplot(Pct.BF)
+plot(Pct.BF)
+title("Pct.Bf")
+shapiro.test(Pct.BF)# pvalue > 5% Ok non rejet de l'hypothèse de normalité
+
+#Age
+boxplot(Age)
+plot(Age)
+title("Age")
+shapiro.test(Age) #pvalue << 5% chelou -> rejet de l'hypothèse de normalité
+hist(Age)
