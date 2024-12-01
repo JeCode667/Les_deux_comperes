@@ -39,7 +39,29 @@ add1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forear
 # On ajoute Bicep
 res <- lm(Pct.BF~Abdomen+Weight+Wrist+Bicep,data=MatXY)
 summary(res)
-# Multiple R-squared:  0.7386,	Adjusted R-squared:  0.7333 
+# Multiple R-squared:  0.7375,	Adjusted R-squared:  0.7332 En gros à partir de là ça n'a vraiment plus d'intérêt de rajouter des variables, au vu de la faible augmentation de R squared et R squared ajusted
+sigma <- sd(res$residuals)
+plot(res$fitted,res$residuals)
+abline(h=2*sigma,col=2)
+abline(h=-2*sigma,col=2)
+#On voit des valeurs un peu loin du reste
+shapiro.test(res$residuals)#pvalue = 0.02632<5% -> rejet de l'hypothèse de normalité
+
+# Modèle sans outliers
+rstudent <- rstudent(res)
+outliers <- which(abs(rstudent) > 2)
+dataSansOutliers <- MatXY[-outliers, ]
+res <- lm(Pct.BF~Weight+Abdomen+Bicep+Wrist, data= dataSansOutliers)
+summary(res)# Multiple R-squared:  0.7656,	Adjusted R-squared:  0.7617 meilleur dans les deux cas
+shapiro.test(res$residuals)
+sigma <- sd(res$residuals)
+plot(res$fitted,res$residuals)
+abline(h=2*sigma,col=2)
+abline(h=-2*sigma,col=2)
+
+
+
+
 
 add1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
 # On ajoute Age
