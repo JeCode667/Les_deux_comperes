@@ -89,17 +89,38 @@ summary(res)
 
 res <- lm(Pct.BF~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist,data=MatXY)
 
-drop1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
-# On ajoute Weight
-res <- lm(Pct.BF~Weight,data=MatXY)
+drop1(res)
+# On retire Knee
+res <- lm(Pct.BF~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Ankle+Bicep+Forearm+Wrist,data=MatXY)
 summary(res)
-# Multiple R-squared:  0.3811,	Adjusted R-squared:  0.3786
+# Multiple R-squared:  0.7505,	Adjusted R-squared:  0.7378 
 
-drop1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
-# On ajoute Weight
-res <- lm(Pct.BF~Weight,data=MatXY)
+drop1(res)
+# On retire Weight
+res <- lm(Pct.BF~Age+Height+Neck+Chest+Abdomen+Hip+Thigh+Ankle+Bicep+Forearm+Wrist,data=MatXY)
 summary(res)
-# Multiple R-squared:  0.3811,	Adjusted R-squared:  0.3786
+# Multiple R-squared:  0.7504,	Adjusted R-squared:  0.7388 
+
+drop1(res)
+# On retire Ankle
+res <- lm(Pct.BF~Age+Height+Neck+Chest+Abdomen+Hip+Thigh+Bicep+Forearm+Wrist,data=MatXY)
+summary(res)
+# Multiple R-squared:  0.7497,	Adjusted R-squared:  0.7393
+
+drop1(res)
+# On retire Bicep
+res <- lm(Pct.BF~Age+Height+Neck+Chest+Abdomen+Hip+Thigh+Forearm+Wrist,data=MatXY)
+summary(res)
+# Multiple R-squared:  0.7486,	Adjusted R-squared:  0.7392 
+
+drop1(res)
+# On retire Chest
+res <- lm(Pct.BF~Age+Height+Neck+Abdomen+Hip+Thigh+Forearm+Wrist,data=MatXY)
+summary(res)
+# Multiple R-squared:  0.7469,	Adjusted R-squared:  0.7385
+
+drop1(res)
+# On ne peut plus rien retirer
 
 sigma <- sd(res$residuals)
 plot(res$fitted,res$residuals)
