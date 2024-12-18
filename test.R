@@ -6,11 +6,14 @@ AcP <- PCAmix(donneesProjet, graph=TRUE)
 MatXY <- data.frame(Pct.BF,Age,Weight,Height,Neck,Chest,Abdomen,Hip,Thigh,Knee,Ankle,Bicep,Forearm,Wrist)
 pairs(MatXY) # C'est illisible mais en gros on voit à peu près que ça confirme ce que dit l'ACP -> Ankle semble correlé avec 
 
+#Un peu d'infos sur Pct.Bf
+summary(Pct.BF)
+
 #Modèle ascendant
 res <- lm(Pct.BF~1,data=MatXY)
 step(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
 res <- lm(Pct.BF~Age+Weight+Abdomen+Thigh+Bicep+Wrist, data=MatXY)
-#Ba il garde pas Ankle faut croire bizarre
+#Ba il garde pas Ankle 
 summary(res)
 # Multiple R-squared:  0.7424,	Adjusted R-squared:  0.736 
 
@@ -27,40 +30,76 @@ add1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forear
 res <- lm(Pct.BF~Abdomen+Weight,data=MatXY)
 summary(res)
 # Multiple R-squared:  0.7228,	Adjusted R-squared:  0.7205
-# A partir de ce point, l'addition de nouveaux éléments n'est pas très utile
+#Pct.Bf=-47.44511+0.97651*Abdomen -0.13276*Weight
 
+# A partir de ce point, l'addition de nouveaux éléments n'est pas très utile
+shapiro.test(res$residuals)#pvalue = 0.1917> au risque de première espèce, on garde la normalité
+sigma <- sd(res$residuals)
+plot(res$fitted,res$residuals)# pas de soucis
+abline(h=2*sigma,col=2)
+abline(h=-2*sigma,col=2)
+
+#Par curiosité on peut continuer d'ajouter des variables
 add1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
 # On ajoute Wrist
-res <- lm(Pct.BF~Abdomen+Weight+Wrist,data=MatXY)
-summary(res)
+res2 <- lm(Pct.BF~Abdomen+Weight+Wrist,data=MatXY)
+summary(res2)
 # Multiple R-squared:  0.7335,	Adjusted R-squared:  0.7303 
+shapiro.test(res$residuals)# pvalue =5,8%... là les résidus sont quasiment plus normaux... une raison de plus de ne pas rajouter cette variable
 
 add1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
 # On ajoute Bicep
-res <- lm(Pct.BF~Abdomen+Weight+Wrist+Bicep,data=MatXY)
-summary(res)
-# Multiple R-squared:  0.7375,	Adjusted R-squared:  0.7332 En gros à partir de là ça n'a vraiment plus d'intérêt de rajouter des variables, au vu de la faible augmentation de R squared et R squared ajusted
-sigma <- sd(res$residuals)
-plot(res$fitted,res$residuals)
-abline(h=2*sigma,col=2)
-abline(h=-2*sigma,col=2)
-#On voit des valeurs un peu loin du reste
-shapiro.test(res$residuals)#pvalue = 0.02632<5% -> rejet de l'hypothèse de normalité
+res2 <- lm(Pct.BF~Abdomen+Weight+Wrist+Bicep,data=MatXY)
+summary(res2)
+# Multiple R-squared:  0.7375,	Adjusted R-squared:  0.7332 même pas d'augmentation de R-squared
+shapiro.test(res$residuals)# là c'est plus normal.
+
 
 # Modèle sans outliers
 rstudent <- rstudent(res)
 outliers <- which(abs(rstudent) > 2)
 dataSansOutliers <- MatXY[-outliers, ]
-res <- lm(Pct.BF~Weight+Abdomen+Bicep+Wrist, data= dataSansOutliers)
-summary(res)# Multiple R-squared:  0.7656,	Adjusted R-squared:  0.7617 meilleur dans les deux cas
-shapiro.test(res$residuals)
-sigma <- sd(res$residuals)
-plot(res$fitted,res$residuals)
+resSO <- lm(Pct.BF~Weight+Abdomen, data= dataSansOutliers)
+summary(resSO)## Avec le modèle précédent sans outliers, on a Multiple R-squared:  0.7522,	Adjusted R-squared:  0.7501
+#Pct.BF =-47.43103 + 0.98750*Abdomen -0.13808*Weight
+
+shapiro.test(resSO$residuals)# rejet de la normalité mais en même temps on a enlevé des valeurs donc...
+sigma <- sd(resSO$residuals)
+plot(resSO$fitted,resSO$residuals)# pas de motif apparent...
 abline(h=2*sigma,col=2)
 abline(h=-2*sigma,col=2)
 
+#On essaye un autre step mais cette fois avec les datas sans outliers
+res3 <- lm(Pct.BF~1,dataSansOutliers)
+step(res3,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
+#On obtient les paramètres :Abdomen + Weight + Wrist + Forearm + Age + Thigh + Ankle 
 
+res3 <-lm(Pct.BF~Abdomen + Weight + Wrist + Forearm + Age + 
+            Thigh + Ankle,dataSansOutliers)
+summary(res3)#Multiple R-squared:  0.7727,	Adjusted R-squared:  0.7659 
+#Pct.Bf =-43.56765 +0.91215*Abdomen -0.13608*Weight - 1.74715*Wrist + 0.33775*Forearm + 0.07364*Age + 0.24381*Thigh + 0.30945*Ankle
+#On voit que Ankle n'est probablement pas significatif (pvalue = 12%) et que forerarm possiblement non plus
 
+res4 <-lm(Pct.BF~Abdomen + Weight + Wrist + Forearm + Age + 
+            Thigh,dataSansOutliers)
+summary(res4)#Multiple R-squared:  0.7704,	Adjusted R-squared:  0.7645, forerarm toujours pas significatif à priori
+
+res5<-lm(Pct.BF~Abdomen + Weight + Wrist + Age + 
+                Thigh,dataSansOutliers)
+summary(res5)#Multiple R-squared:  0.7672,	Adjusted R-squared:  0.7622 
+# Toutes les variables sont "significatives" Mais pour 3 variables de plus que res on gagne que 3 point d'explicabilité... pas ouf
+# Pct.BF =-35.59543 + 0.88302*Abdomen -0.10835*Weight -1.41729*Wrist + 0.06689*Age + 0.25869*Thigh
+
+####################################################################################
+####################################################################################
+####################################################################################
+####################################################################################
+####################################################################################
+####################################################################################
+####################################################################################
+####################################################################################
+### Tout ce qu'il y a en dessous on jette je pense
+#On peut conclure avec res ça suffit
 
 
 add1(res,~Age+Weight+Height+Neck+Chest+Abdomen+Hip+Thigh+Knee+Ankle+Bicep+Forearm+Wrist)
